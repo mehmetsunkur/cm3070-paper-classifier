@@ -1,0 +1,35 @@
+# Configuration for 64-128k dataset experiment
+# Extends label_discipline.yaml with size-specific overrides
+# Shared settings for ALL 64-128k variants (s1000, s5000, etc.)
+
+extends: label_discipline.yaml
+
+subset_generation:
+  # Override size rank for this experiment
+  size_rank: 64-128k
+  # Note: sample_count is NOT specified here - varies per variant (s1000, s5000, etc.)
+
+data:
+  max_seq_length: auto  # Explicitly set max sequence length
+  
+training:
+  # Batch size and accumulation (adjusted for 64-128k range)
+  batch_size_train: 1
+  batch_size_eval: 1
+  gradient_accumulation_steps: 3
+  
+  # Learning rate and optimization
+  learning_rate: 0.00002
+  max_grad_norm: 1.0
+  
+  # Training duration
+  num_epochs: 10
+  
+evaluation:
+  # Override early stopping for this larger dataset
+  early_stopping_patience: 2
+  early_stopping_threshold: 0.01
+  
+logging:
+  # Experiment-specific notes
+  wandb_notes: "64-128k dataset: larger batch, LR=2e-5"

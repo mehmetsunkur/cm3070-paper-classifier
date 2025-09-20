@@ -68,3 +68,6 @@ packages/paper_download/papers/
 *.jsonl
 
 packages/paper_dataset/temp_batches/
+packages/paper_classifier/wandb/
+
+packages/paper_classifier/trained_models/

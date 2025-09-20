@@ -1,0 +1,7 @@
+# Configuration for 1-4k dataset with 1000 samples
+# Minimal config - inherits all common settings from label_discipline_4k.yaml
+
+extends: label_discipline_1_4k.yaml
+
+subset_generation:
+  sample_count: 1000

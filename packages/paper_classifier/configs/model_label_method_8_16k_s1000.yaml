@@ -1,0 +1,7 @@
+# Configuration for 8-16k dataset with 1000 samples
+# Minimal config - inherits all common settings from label_method_8_16k.yaml
+
+extends: label_method_8_16k.yaml
+
+subset_generation:
+  sample_count: 1000

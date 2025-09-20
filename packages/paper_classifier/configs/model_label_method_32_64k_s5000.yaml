@@ -1,0 +1,13 @@
+# Configuration for 32-64k dataset with 5000 samples
+# Minimal config - inherits all common settings from label_method_32_64k.yaml
+
+extends: label_method_32_64k.yaml
+
+subset_generation:
+  sample_count: 5000
+
+# Optional: Adjust batch sizes if needed for larger sample count
+# Uncomment and modify if different from the default batch_size_train: 1
+# training:
+#   batch_size_train: 1
+#   batch_size_eval: 1

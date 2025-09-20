@@ -1,0 +1,27 @@
+# Configuration for 1-4k dataset experiment
+# Extends label_field.yaml with size-specific overrides
+# Shared settings for ALL 1-4k variants (s1000, s5000, etc.)
+
+extends: label_field.yaml
+
+subset_generation:
+  # Override size rank for this experiment
+  size_rank: 1-4k
+  # Note: sample_count is NOT specified here - varies per variant (s1000, s5000, etc.)
+  
+training:
+  # Batch size and accumulation (common for 1-4k range)
+  batch_size_train: 20
+  batch_size_eval: 20
+  gradient_accumulation_steps: 10
+  
+  # Learning rate and optimization
+  learning_rate: 0.00001
+  max_grad_norm: 0.5
+  
+  # Training duration
+  num_epochs: 30
+  
+logging:
+  # Experiment-specific notes
+  wandb_notes: "1-4k dataset: LR=1e-5, grad_clip=0.5, FP16_O1"

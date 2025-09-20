@@ -1,0 +1,110 @@
+# Base configuration for Mamba text classification
+# Common settings shared across all experiments
+
+model:
+  name: state-spaces/mamba-130m
+  num_classes: 7
+  tokenizer: EleutherAI/gpt-neox-20b
+
+training:
+  # Optimizer settings
+  optimizer: adamw_torch
+  weight_decay: 0.01
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+  
+  # Learning rate settings
+  learning_rate: 0.00005
+  lr_scheduler_type: linear
+  warmup_ratio: 0.06
+  
+  # Training settings
+  num_epochs: 10
+  batch_size_train: 4
+  batch_size_eval: 4
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: false
+  
+  # Precision and optimization
+  fp16: true
+  fp16_opt_level: O1
+  max_grad_norm: 1.0
+  
+  # Distributed training
+  ddp_find_unused_parameters: false
+  
+data:
+  # Dataset settings
+  max_seq_length: auto  # Will be auto-detected from dataset
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  remove_unused_columns: true
+  # Optional: Direct parquet path (overrides subset generation)
+  parquet_path: null
+  
+subset_generation:
+  # Enable automatic subset generation from source parquet
+  enabled: true
+  # Path to the main source parquet file
+  source_file: ../mamba-paper-classifier/data/processed_pyarrow-1/output.parquet
+  # Label column for balanced sampling
+  label_column: null
+  # Size rank will be overridden in experiment-specific configs
+  size_rank: null
+  # Number of samples to extract
+  sample_count: null
+  # Random seed for reproducibility
+  random_seed: 42
+  # Allow circular sampling for underrepresented labels
+  allow_oversampling: true
+  # Verbose logging for subset generation
+  verbose: false
+  
+evaluation:
+  # Evaluation settings
+  eval_strategy: steps
+  eval_steps: 500
+  save_strategy: steps
+  save_steps: 500
+  save_total_limit: 3
+  
+  # Metrics
+  metric_for_best_model: eval_loss
+  greater_is_better: false
+  load_best_model_at_end: true
+  
+  # Early stopping
+  early_stopping_patience: null
+  early_stopping_threshold: null
+  
+logging:
+  # Logging settings
+  report_to: wandb
+  logging_dir: ./logs
+  logging_steps: 10
+  logging_first_step: false
+  log_level: info
+  
+  # WandB settings (can be overridden by environment variables)
+  wandb_project: ${WANDB_PROJECT:-mamba-text-classification}
+  wandb_entity: null
+  wandb_name: null
+  wandb_notes: null
+  
+output:
+  # Output settings
+  output_dir: ./outputs  # Will be appended with timestamp
+  overwrite_output_dir: false
+  
+# Hardware settings
+hardware:
+  seed: 42
+  data_seed: null
+  bf16: false
+  tf32: true
+  
+# Debugging
+debug:
+  skip_memory_metrics: true
+  include_inputs_for_metrics: false

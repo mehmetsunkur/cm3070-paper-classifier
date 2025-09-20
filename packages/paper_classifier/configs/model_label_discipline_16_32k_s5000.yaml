@@ -1,0 +1,13 @@
+# Configuration for 16-32k dataset with 5000 samples
+# Minimal config - inherits all common settings from label_discipline_16_32k.yaml
+
+extends: label_discipline_16_32k.yaml
+
+subset_generation:
+  sample_count: 5000
+
+# Optional: Adjust batch sizes if needed for larger sample count
+# Uncomment and modify if different from the default batch_size_train: 4
+# training:
+#   batch_size_train: 6
+#   batch_size_eval: 6

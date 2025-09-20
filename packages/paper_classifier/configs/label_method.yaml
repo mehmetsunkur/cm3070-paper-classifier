@@ -1,0 +1,30 @@
+# Intermediate configuration for label_method experiments
+# Consolidates common settings across all label_method size variants
+# Extends base.yaml and is extended by specific size configs
+
+extends: base.yaml
+
+subset_generation:
+  # Common label column for all method-based experiments
+  label_column: label_method
+  # Common sample count (can be overridden if needed)
+  sample_count: 1000
+  # These will be inherited by all size-specific configs
+  
+evaluation:
+  # Common evaluation frequency across all sizes
+  eval_steps: 10
+  save_steps: 10
+  
+  # Common early stopping settings (can be overridden if needed)
+  early_stopping_patience: 3
+  early_stopping_threshold: 0.001
+
+# Note: Size-specific configs will override:
+# - subset_generation.size_rank
+# - training.batch_size_train/eval
+# - training.gradient_accumulation_steps
+# - training.learning_rate
+# - training.max_grad_norm
+# - training.num_epochs
+# - logging.wandb_notes
