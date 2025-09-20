@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paper-classifier"
+version = "0.1.0"
+description = "Module for classifying academic papers"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+requires-python = ">=3.8"
+
+dependencies = [
+    "torch>=1.12.0",
+    "transformers>=4.20.0",
+    "scikit-learn>=1.1.0",
+    "numpy>=1.21.0",
+    "pandas>=1.5.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["paper_classifier*"]

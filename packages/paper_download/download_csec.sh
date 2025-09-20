@@ -1,0 +1,1 @@
+uv run paper-download download --filter CSEC --max 100000

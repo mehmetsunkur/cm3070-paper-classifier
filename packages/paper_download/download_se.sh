@@ -1,0 +1,1 @@
+uv run paper-download download --filter SE --max 100000
