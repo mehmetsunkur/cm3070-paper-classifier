@@ -24,6 +24,7 @@ dependencies = [
 [project.scripts]
 train-paper-classifier = "paper_classifier.main:main"
 list-paper-models = "paper_classifier.model_manager:main"
+classify-paper = "paper_classifier.cli_inference:main"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

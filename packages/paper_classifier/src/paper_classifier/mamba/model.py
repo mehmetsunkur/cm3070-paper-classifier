@@ -73,15 +73,30 @@ class MambaTextClassification(MambaLMHeadModel):
             
             return ClassificationOutput(loss = loss, logits = logits)
     def predict(self, text, tokenizer, id2label = None):
-        input_ids = torch.tensor(tokenizer(text)['input_ids'], device = "cuda")[None]
+        """
+        Predict the class label for the given text.
+        
+        Args:
+            text: Input text to classify
+            tokenizer: Tokenizer to process the text
+            id2label: Optional mapping from label IDs to human-readable names
+                     If provided, should map int -> str (e.g., {0: "Computer Science"})
+            
+        Returns:
+            Either the predicted label ID (int) or human-readable label (str)
+        """
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        input_ids = torch.tensor(tokenizer(text)['input_ids'], device=device)[None]
         with torch.no_grad():
             logits = self.forward(input_ids).logits[0]
             label = np.argmax(logits.cpu().numpy())
             
         if id2label is not None:
-            return id2label[label]
+            # Convert numpy int to Python int for dict lookup
+            label_id = int(label)
+            return id2label.get(label_id, f"Unknown_{label_id}")
         else:
-            return label
+            return int(label)
     
     @classmethod
     def from_pretrained(cls, pretrained_model_name, device = None, dtype = None, config = None, num_classes = None, **kwargs):
