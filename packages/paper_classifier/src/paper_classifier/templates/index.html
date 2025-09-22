@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Classification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-area {
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #ecf0f1;
+            transition: background-color 0.3s;
+        }
+        .upload-area:hover {
+            background-color: #d5dbdb;
+        }
+        .upload-area.dragover {
+            background-color: #3498db;
+            color: white;
+        }
+        #file-input {
+            display: none;
+        }
+        .upload-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .upload-btn:hover {
+            background-color: #2980b9;
+        }
+        .upload-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .loading .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e8f5e8;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+            display: none;
+        }
+        .error {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fdf2f2;
+            border-radius: 5px;
+            border-left: 4px solid #e74c3c;
+            color: #c0392b;
+            display: none;
+        }
+        .result-section {
+            margin: 15px 0;
+        }
+        .result-label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .confidence {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .file-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .example-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+        .example-section h3 {
+            color: #34495e;
+            margin-bottom: 10px;
+        }
+        .example-section ul {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Paper Classification System</h1>
+        <p style="text-align: center; color: #7f8c8d; margin-bottom: 30px;">
+            Upload a PDF paper to automatically classify it by academic discipline, research field, and methodology
+        </p>
+        
+        <div class="upload-area" id="upload-area">
+            <h3>📎 Drop PDF file here or click to browse</h3>
+            <p>Maximum file size: 50MB</p>
+            <input type="file" id="file-input" accept=".pdf">
+            <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                Choose PDF File
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your paper... This may take 10-30 seconds.</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        <div class="results" id="results"></div>
+        
+        <div class="example-section">
+            <h3>🏷️ Classification Categories</h3>
+            <ul>
+                <li><strong>Discipline:</strong> Computer Science, Software Engineering, Data Science, etc.</li>
+                <li><strong>Field:</strong> Machine Learning, Computer Vision, Natural Language Processing, etc.</li>
+                <li><strong>Method:</strong> Empirical Study, Theoretical Analysis, Algorithm Development, etc.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const error = document.getElementById('error');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        async function handleFile(file) {
+            // Validate file
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                showError('Please select a PDF file.');
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {
+                showError('File size must be less than 50MB.');
+                return;
+            }
+
+            // Show loading
+            hideAll();
+            loading.style.display = 'block';
+
+            // Upload and process
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResults(data);
+                } else {
+                    showError(data.detail || 'An error occurred during processing.');
+                }
+            } catch (err) {
+                showError('Network error. Please try again.');
+                console.error('Upload error:', err);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function showResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            let html = `
+                <div class="file-info">
+                    <strong>📁 File:</strong> ${data.filename} (${formatFileSize(data.file_size)})
+                </div>
+            `;
+
+            const res = data.results;
+            
+            if (res.discipline) {
+                html += `
+                    <div class="result-section">
+                        <div class="result-label">🏛️ Academic Discipline</div>
+                        <div>${res.discipline.label}</div>
+                        <div class="confidence">Confidence: ${(res.discipline.confidence * 100).toFixed(1)}%</div>
+                    </div>
+                `;
+            }
+
+            if (res.field) {
+                html += `
+                    <div class="result-section">
+                        <div class="result-label">🔬 Research Field</div>
+                        <div>${res.field.label}</div>
+                        <div class="confidence">Confidence: ${(res.field.confidence * 100).toFixed(1)}%</div>
+                    </div>
+                `;
+            }
+
+            if (res.method) {
+                html += `
+                    <div class="result-section">
+                        <div class="result-label">🔍 Research Method</div>
+                        <div>${res.method.label}</div>
+                        <div class="confidence">Confidence: ${(res.method.confidence * 100).toFixed(1)}%</div>
+                    </div>
+                `;
+            }
+
+            if (res.processing_time_seconds) {
+                html += `
+                    <div class="file-info">
+                        ⏱️ Processing time: ${res.processing_time_seconds.toFixed(2)} seconds
+                    </div>
+                `;
+            }
+
+            // Add formatted output
+            html += `
+                <details style="margin-top: 20px;">
+                    <summary style="cursor: pointer; font-weight: bold;">📋 Detailed Results</summary>
+                    <pre>${data.human_readable}</pre>
+                </details>
+            `;
+
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideAll() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
+    
